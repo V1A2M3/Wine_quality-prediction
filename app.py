@@ -9,7 +9,7 @@ from sklearn.metrics import classification_report
 
 @st.cache_data
 def load_and_train():
-    df = pd.read_csv(r"C:/Users/chitt/Downloads/winequality-red.csv")
+    df = pd.read_csv("winequality-red.csv")
 
     # Binary classification: quality >= 6 is good
     df['quality'] = df['quality'].apply(lambda x: 1 if x >= 5 else 0)
