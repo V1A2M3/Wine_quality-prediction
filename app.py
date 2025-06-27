@@ -13,17 +13,23 @@ def load_and_train():
     df = pd.read_csv("winequality-red.csv")
 
     X = df.drop('quality', axis=1)
-    y = df['quality']  # Multi-class target: quality scores from 3 to 8
+    y = df['quality']
 
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
     scaler = StandardScaler()
     X_train_scaled = scaler.fit_transform(X_train)
 
-    model = XGBClassifier(objective='multi:softprob', num_class=6, eval_metric='mlogloss')
+    num_classes = y.nunique()  # auto-detect number of classes
+
+    model = XGBClassifier(objective='multi:softprob',
+                          num_class=num_classes,
+                          eval_metric='mlogloss',
+                          use_label_encoder=False)
     model.fit(X_train_scaled, y_train)
 
     return model, scaler, X.columns, y
+
 
 # Load model and data
 model, scaler, feature_names, y_all = load_and_train()
