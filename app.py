@@ -12,26 +12,31 @@ import matplotlib.pyplot as plt
 def load_and_train():
     df = pd.read_csv("winequality-red.csv")
 
+    # Extract features and labels
     X = df.drop('quality', axis=1)
-    y = df['quality']
+    y_raw = df['quality']
 
-    print("Classes in dataset:", sorted(y.unique()))
-    print("Number of classes:", y.nunique())
+    # Map wine quality to 0-based labels for XGBoost
+    label_mapping = {val: idx for idx, val in enumerate(sorted(y_raw.unique()))}
+    y = y_raw.map(label_mapping)
 
+    # Save reverse mapping for display
+    reverse_mapping = {v: k for k, v in label_mapping.items()}
+
+    # Split and scale
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-
     scaler = StandardScaler()
     X_train_scaled = scaler.fit_transform(X_train)
 
-    num_classes = y.nunique()  # auto-detect number of classes
-
+    # Train model
     model = XGBClassifier(objective='multi:softprob',
-                          num_class=num_classes,
+                          num_class=len(label_mapping),
                           eval_metric='mlogloss',
                           use_label_encoder=False)
     model.fit(X_train_scaled, y_train)
 
-    return model, scaler, X.columns, y
+    return model, scaler, X.columns, reverse_mapping
+
 
 
 # Load model and data
@@ -58,8 +63,9 @@ if st.button("Predict Quality"):
 
     pred_probs = model.predict_proba(input_scaled)[0]
     pred_class = model.predict(input_scaled)[0]
+    true_quality = reverse_mapping[pred_class]
 
-    st.success(f"✅ Predicted Wine Quality: **{int(pred_class)}**")
+    st.success(f"✅ Predicted Wine Quality: **{true_quality}**")
     
     # Show confidence for each class
     st.subheader("📊 Prediction Confidence (All Classes)")
