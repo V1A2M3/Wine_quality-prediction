@@ -40,7 +40,7 @@ def load_and_train():
 
 
 # Load model and data
-model, scaler, feature_names, y_all = load_and_train()
+model, scaler, feature_names, reverse_mapping = load_and_train()
 
 # ---------------------- Streamlit UI ----------------------
 st.title("🍷 Advanced Wine Quality Predictor")
@@ -48,13 +48,15 @@ st.write("Predict the quality of wine (3–8) using an advanced machine learning
 
 st.sidebar.header("Enter Wine Features")
 
-# Get user input using sliders
 user_input = {}
 for feature in feature_names:
-    min_val = float(y_all.min())
-    max_val = float(y_all.max())
-    default = 5.0
-    user_input[feature] = st.sidebar.slider(feature.replace('_', ' ').capitalize(), 0.0, 20.0, default, 0.1)
+    user_input[feature] = st.sidebar.slider(
+        feature.replace('_', ' ').capitalize(),
+        min_value=0.0,
+        max_value=20.0,
+        value=5.0,
+        step=0.1
+    )
 
 # Predict on form submission
 if st.button("Predict Quality"):
