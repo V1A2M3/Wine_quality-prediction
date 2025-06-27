@@ -15,6 +15,9 @@ def load_and_train():
     X = df.drop('quality', axis=1)
     y = df['quality']
 
+    print("Classes in dataset:", sorted(y.unique()))
+    print("Number of classes:", y.nunique())
+
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
     scaler = StandardScaler()
